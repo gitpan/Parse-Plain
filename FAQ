@@ -1,0 +1,48 @@
+
+	FREQUENTLY ASKED QUESTIONS about Parse::Plain
+
+
+Q1. Why do you use %% and {{ }} as tag / block delimiters?
+A1. These symbols are very rarely appear in pairs. More, unlike
+HTML-style comments and HTML-style tags they are never hidden
+by various WYSIWYG editors.
+
+
+Q2. What if I must use these symbols elsewhere in my template?
+A2. You can try this trick:
+$t->set_tag('DPERC', '%%');
+$t->set_tag('DCURLYL', '{{');
+$t->set_tag('DCURLYR', '}}');
+
+If your template is HTML the better idea is to use character entities:
+&#037; for %
+&#123; for {
+&#125; for }
+
+
+Q3. On which systems Parse:Plain may be run?
+A3. It was tested under FreeBSD, Linux and Windows 2000 with Perl 5.00503,
+Perl 5.6 and Perl 5.8.0 but it must run without any problems on any other system 
+as well. If it won't work on your one please let me know. Please, note: the
+module was never tested with Perl 6!
+
+
+Q4. Can I use it somehow with Perl 4?
+A4. No. It implement object-oriented approach which wasn't available in Perl 4.
+
+
+Q5. Do you provide support?
+A5. No, but feel free to contact me if you have any question. If you've 
+found a bug, I'll probably try to fix it ASAP.
+
+
+Q6. Are there any other modules for parsing templates?
+A6. Yes, please check out (in alphabetical order):
+dTemplate
+HCKit::Template
+HTML::Template
+Template
+Text::FastTemplate
+Text::MetaText
+Text::SimpleTemplate
+All packages mentioned above available from http://www.cpan.org/

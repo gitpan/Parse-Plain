@@ -1,0 +1,17 @@
+
+	Parse::Plain ToDo list
+
+
+1. Add interface calling perl functions, something like:
+%%fun.hello(123)%% -- call hello function with
+parameter 123.
+
+
+2. Add interface to show any variable, something like:
+%%var.$abc%% -- show $abc
+
+
+3. Allow changing delimiter symbols.
+
+
+All contributions are welcome ;-)

@@ -1,0 +1,14 @@
+You need Perl version 5.005 or better in order to install
+Parse::Plain. Please note, the module wasn't tested under
+Perl 6!
+
+No additional modules required.
+
+No restrictions on operating system / platform known.
+
+To install the package:
+
+	perl Makefile.PL
+	make
+	make test
+	make install

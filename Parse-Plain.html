@@ -1,0 +1,395 @@
+<HTML>
+<HEAD>
+<TITLE>Parse::Plain - simple template parsing engine</TITLE>
+<LINK REV="made" HREF="mailto:hackers@FreeBSD.org">
+</HEAD>
+
+<BODY>
+
+<!-- INDEX BEGIN -->
+
+<UL>
+
+	<LI><A HREF="#NAME">NAME</A>
+	<LI><A HREF="#SYNOPSIS">SYNOPSIS</A>
+	<LI><A HREF="#DESCRIPTION">DESCRIPTION</A>
+	<LI><A HREF="#METHODS">METHODS</A>
+	<UL>
+
+		<LI><A HREF="#new_">new()</A>
+		<LI><A HREF="#set_tag_">set_tag()</A>
+		<LI><A HREF="#get_tag_">get_tag()</A>
+		<LI><A HREF="#push_tag_">push_tag()</A>
+		<LI><A HREF="#unshift_tag_">unshift_tag()</A>
+		<LI><A HREF="#block_">block()</A>
+		<LI><A HREF="#push_block_">push_block()</A>
+		<LI><A HREF="#unshift_block_">unshift_block()</A>
+		<LI><A HREF="#set_text_">set_text()</A>
+		<LI><A HREF="#set_text_">set_text()</A>
+		<LI><A HREF="#parse_">parse()</A>
+		<LI><A HREF="#output_">output()</A>
+	</UL>
+
+	<LI><A HREF="#TIPS_AND_CAVEATS">TIPS AND CAVEATS</A>
+	<LI><A HREF="#EXAMPLES">EXAMPLES</A>
+	<UL>
+
+		<LI><A HREF="#Using_blocks">Using blocks</A>
+		<LI><A HREF="#Using_hidden_blocks">Using hidden blocks</A>
+	</UL>
+
+	<LI><A HREF="#BUGS">BUGS</A>
+	<LI><A HREF="#AUTHOR">AUTHOR</A>
+	<LI><A HREF="#COPYRIGHTS">COPYRIGHTS</A>
+</UL>
+<!-- INDEX END -->
+
+<HR>
+<P>
+<H1><A NAME="NAME">NAME</A></H1>
+<P>
+<PRE> Parse::Plain - simple template parsing engine
+</PRE>
+<P>
+<HR>
+<H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
+<P>
+<PRE> # in user's code
+ use Parse::Plain;
+</PRE>
+<P>
+<PRE> my $t = new Parse::Plain('filename.tmpl');
+</PRE>
+<P>
+<PRE> $t-&gt;set_tag('mytag', 'value');          # %%mytag%% set to value
+ $t-&gt;push_tag('mytag', '-pushed');       # %%mytag%% set to value-pushed
+ $t-&gt;set_tag('mytag', 'value');          # %%mytag%% set to value
+ $t-&gt;unshift_tag('mytag', 'unshifted-'); # %%mytag%% set to unshifted-value
+</PRE>
+<P>
+<PRE> $t-&gt;push_block('myblock', 'some text to append to the block');
+ $t-&gt;unshift_block('myblock', 'some text to prepend to the block');
+</PRE>
+<P>
+<PRE> $t-&gt;parse('myblock', {'blocktag' =&gt; 'block value'});  # parse block
+ $t-&gt;parse('myblock', {'blocktag' =&gt; 'another block value'});
+</PRE>
+<P>
+<PRE> $t-&gt;parse;   # parse whole document
+ $t-&gt;output;  # output parsed results to STDOUT
+</PRE>
+<P>
+<HR>
+<H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
+<P>
+Parse::Plain is a simple module for parsing text templates. It was designed
+to use on HTML, XHTML, XML and other markup languages but usually can also
+be used on arbitrary text files.
+
+<P>
+Basic constructions in the templates are tags and blocks. Both have names.
+Valid symbols for using in tag and block names are digits, latin letters,
+underscores, dashes, dots, semicolons, colons, commas, parentheses,
+asterisks, ampersands and caret symbols. An exclamation mark ('<STRONG>!</STRONG>') has special meaning and will be discussed later. All names are case
+sensitive.
+
+<P>
+Tag is a string in form <STRONG>%%tagname%%</STRONG>. There may be any number of tags with the same name in the template and
+any number of different tags.
+
+<P>
+Block is a construction that begins with line
+
+<P>
+<STRONG>{{ blockname</STRONG>
+
+
+
+<P>
+and ends with line
+
+<P>
+<STRONG>}}</STRONG>
+
+
+
+<P>
+Both block-start and block-end elements must be on separate lines. Symbols
+between block-start and block-end form block body. Blocks are especially
+useful for iterative elements like table rows etc. Blocks can be nested and
+tags are allowed within block body.
+
+<P>
+There also is a special form of tag names. Lets say you have a block named
+myblock. Then you can use in your template tags named <STRONG>%%!myblock%%</STRONG>
+and they will be substituted to current value of myblock.
+
+<P>
+You can also hide block from place in template where it is defined by
+prepending <STRONG>!</STRONG> to it's name. Then you'll only be able to show this block using appropriate
+tag names (with '<STRONG>!</STRONG>'). See <A HREF="#EXAMPLES">EXAMPLES</A> section.
+
+<P>
+<HR>
+<H1><A NAME="METHODS">METHODS</A></H1>
+<P>
+<HR>
+<H2><A NAME="new_">new()</A></H2>
+<P>
+The constructor. The only parameter is a path to template file. Template
+file must exist and be readable. If file cannot be read several attempts
+will be made (see <EM>$loop_cnt_max</EM> and <EM>$sleep_sec</EM>
+variables at the BEGIN section).
+
+<P>
+<HR>
+<H2><A NAME="set_tag_">set_tag()</A></H2>
+<P>
+Tags accessor. Requires parameters: tagname, value. Example:
+
+<P>
+<STRONG>$t-&gt;set_tag('mytag', 'value'); # set %%mytag%% to 'value'</STRONG>
+
+
+
+<P>
+Value may be another instance of Parse::Plain. In this case parse method
+will be called automatically on value object. Returns new value of tag.
+
+<P>
+<HR>
+<H2><A NAME="get_tag_">get_tag()</A></H2>
+<P>
+Tags accessor. Requires one parameter: tagname. Returns current value of
+tag.
+
+<P>
+<HR>
+<H2><A NAME="push_tag_">push_tag()</A></H2>
+<P>
+Append supplied value to current value of tag. Requires parameters: tag
+name and value. Value may be an instance of Parse::Plain. In this case
+parse method will be called automatically on value object. Returns new
+value of tag.
+
+<P>
+<HR>
+<H2><A NAME="unshift_tag_">unshift_tag()</A></H2>
+<P>
+Prepend supplied value to current value of tag. Requires parameters: tag
+name and value. Value may be an instance of Parse::Plain. In this case
+parse method will be called automatically on value object. Returns new
+value of tag.
+
+<P>
+<HR>
+<H2><A NAME="block_">block()</A></H2>
+<P>
+Block accessor. Requires parameter: block name. Second parameter (value) is
+optional. If it is omitted current value of block is returned, otherwise
+it's set to a new value. Value may be an instance of Parse::Plain. In this
+case parse method will be called automatically on value object. Returns new
+value of the block or old value if the block wasn't changed.
+
+<P>
+<HR>
+<H2><A NAME="push_block_">push_block()</A></H2>
+<P>
+Append supplied value to block. Required parameters: block name, value.
+Value may be an instance of Parse::Plain. In this case parse method will be
+called automatically on value object. Returns new value of the block.
+
+<P>
+<HR>
+<H2><A NAME="unshift_block_">unshift_block()</A></H2>
+<P>
+Prepend supplied value to block. Required parameters: block name, value.
+Value may be an instance of Parse::Plain. In this case parse method will be
+called automatically on value object. Returns new value of the block.
+
+<P>
+<HR>
+<H2><A NAME="set_text_">set_text()</A></H2>
+<P>
+Set text to parameter. Text is a special member containing outermost block
+source if hasn't been parsed yet or whole parsed results if 
+<A href="#parse_">parse()</A> method has already been called.
+<STRONG>WARNING:</STRONG> You should probably never use this function directly! Return new value of
+text.
+
+<P>
+<HR>
+<H2><A NAME="set_text_">set_text()</A></H2>
+<P>
+Returns current value of text. Text is a special member containing
+outermost block source if hasn't been parsed yet or whole parsed results if <A href="#parse_">parse()</A> method has already been called.
+<STRONG>WARNING:</STRONG> You should probably never use this function directly! See
+<A href="#parse_">parse()</A> function elsewhere is this document!
+
+<P>
+<HR>
+<H2><A NAME="parse_">parse()</A></H2>
+<P>
+Parse chunk of text using defined tags and blocks. If called without
+parameters the template is parsed using tags and blocks defined so far.
+There are three optional parameters: <EM>blockname</EM>, <EM>hashref</EM>, 
+<EM>useglobalhash</EM>. First specifies block name to be parsed. You must call
+<A href="#parse_">parse()</A> function on each block in your template at least onse or the block will be
+ignored. You must also call <A href="#parse_">parse()</A> function for each iteration of the block. See <A HREF="#EXAMPLES">EXAMPLES</A> section elsewhere in this document. You can also provide a referense to
+hash of tags used for parsing current block. For example:
+
+<P>
+<STRONG>$t-&gt;parse('blockname', {'tag1' =&gt; 'val1', 'tag2' =&gt; 'val2'});</STRONG>
+
+
+
+<P>
+If you don't specify this hash reference global hash (filled with
+<A href="#set_tag_">set_tag()</A> functions) wiil be used instead. You can also use both supplied hash and
+global hash for parsing your block by setting third parameter to true.
+Returns parsing results (either text or block).
+
+<P>
+<HR>
+<H2><A NAME="output_">output()</A></H2>
+<P>
+Print parsing results to STDOUT. If text hasn't been parsed yet calls
+<A href="#parse_">parse()</A> method before. Returns parsed text.
+
+<P>
+<HR>
+<H1><A NAME="TIPS_AND_CAVEATS">TIPS AND CAVEATS</A></H1>
+<UL>
+<LI><A NAME="item_Names">Names are case sensitive.</A>
+<LI><A NAME="item_Non">Non-defined tags and blocks are moved off from the result</A>
+<LI><A NAME="item_Block">Block start and end elements do not insert newline. Consider the
+template fragment:</A>
+<P>
+<PRE>
+       He
+  {{ myblock
+ll
+  }}
+o
+</PRE>
+<P>
+It will be parsed to
+
+<P>
+<PRE>
+       Hello
+</PRE>
+
+
+
+<P>
+line.
+
+<LI><A NAME="item_Block">Block start and end elements may be padded with whitespaces or tabs 
+for better readability.</A>
+<LI><A NAME="item_Always">Always parse innermost block before outer blocks.</A>
+<LI><A NAME="item_Blocks">Blocks may be reparsed with different values, tags also can be reset.</A>
+<H1><A NAME="EXAMPLES">EXAMPLES</A></H1>
+<H2><A NAME="Using_blocks">Using blocks</A></H2>
+<P>
+<STRONG>Template (template.tmpl):</STRONG>
+<PRE>
+ &lt;table&gt; &lt;th&gt;%%name%%&lt;/th&gt;
+
+<P>
+ {{ block1
+         &lt;tr&gt;&lt;td&gt;%%tag1%%&lt;/td&gt;&lt;td&gt;%%tag2%%&lt;/td&gt;&lt;/tr&gt;
+
+<P>
+ }}
+ &lt;/table&gt; 
+</PRE>
+<P>
+<STRONG>Code:</STRONG>
+<PRE>
+use Parse::Plain;
+$t = new Parse::Plain 'template.tmpl';
+$t-&gt;set_tag('name', ``My table'');
+$t-&gt;parse('block1', {'tag1' =&gt; '01', 'tag2' =&gt; '02'});
+$t-&gt;parse('block1', {'tag1' =&gt; '03', 'tag2' =&gt; '04'});
+$t-&gt;output;
+</PRE>
+<P>
+<STRONG>Output:</STRONG>
+<PRE>
+&lt;table&gt; &lt;th&gt;My table&lt;/th&gt;
+&lt;tr&gt;&lt;td&gt;01&lt;/td&gt;&lt;td&gt;02&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;03&lt;/td&gt;&lt;td&gt;04&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+</PRE>
+
+<H2><A NAME="Using_hidden_blocks">Using hidden blocks</A></H2>
+<P>
+<STRONG>Template (template.tmpl):</STRONG>
+ <PRE>
+ &lt;table %%border%%&gt;
+ {{ myblock
+	&lt;tr&gt;&lt;td %%!hidden%%&gt;%%value%%&lt;/td&gt;&lt;/tr&gt;
+ }}
+ &lt;/table&gt;
+ {{ !hidden
+ class=&quot;%%class%%&quot; align=&quot;%%align%%&quot;
+ }}
+</PRE>
+<P>
+<STRONG>Code:</STRONG>
+<PRE>
+use Parse::Plain;
+$t = new Parse::Plain 'template.tmpl';
+$t-&gt;parse('hidden', {'class' =&gt; 'red', 'align' =&gt; 'right'});
+$t-&gt;parse('myblock', {'value' =&gt; '01'});
+$t-&gt;parse('myblock', {'value' =&gt; '02'}); # we didn't define %%border%% tag 
+$t-&gt;output;
+</PRE>
+
+<P>
+<STRONG>Output:</STRONG>
+<PRE>
+&lt;table &gt;
+	&lt;tr&gt;&lt;td class=``red'' align=``right''&gt;01&lt;/td&gt;&lt;/tr&gt;
+	&lt;tr&gt;&lt;td class=``red'' align=``right''&gt;02&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+</PRE>
+
+<H1><A NAME="BUGS">BUGS</A></H1>
+<P>
+If you define a hidden block (with '<STRONG>!</STRONG>') and a nested block inside it and use tag to show the hidden block
+(outer) behavior is undefined.
+
+<P>
+You have no way to change tag / block delimiters. See FAQ document provided
+with distribution for more details.
+
+<P>
+If you have found any other bugs or have any comments/wishes don't hesitate
+to contact me.
+
+<H1><A NAME="AUTHOR">AUTHOR</A></H1>
+<P>
+<PRE> <B>Andrew Alexandre Novikov.</B>
+ mailto: perl@an.kiev.ua
+ www: <A HREF="http://www.an.kiev.ua/" target="_blank">http://www.an.kiev.ua/</A>
+ icq: <A HREF="http://icq.com/7593332" target="_blank">7593332</A>
+</PRE>
+<H1><A NAME="COPYRIGHTS">COPYRIGHTS</A></H1>
+<P>
+&copy; Copyright 2003 by Andrew A Novikov <A HREF="http://www.an.kiev.ua/" target="_blank">http://www.an.kiev.ua/</A>.
+
+<P>
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+<P>
+See <A
+HREF="http://www.perl.com/perl/misc/Artistic.html">http://www.perl.com/perl/misc/Artistic.html</A>
+
+
+</DL>
+</BODY>
+
+</HTML>

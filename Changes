@@ -1,0 +1,12 @@
+2.02	26.09.2003	Andrew A. Novikov
+	- some additional symbols (underscores, dashes, dots, semicolons,
+	  colons, commas, parentheses, asterisks, ampersands and caret
+	  symbols) now allowed in tag / block names. 
+	- test case was created.
+
+
+2.01	23.09.2003	Andrew A. Novikov
+	- nested blocks allowed. POD documentation written.
+
+
+Note: before version 2.01 the module wasn't available to public.
