@@ -1,6 +1,7 @@
 
 	Parse::Plain ToDo list
 
-No plans to support 2.x in future. Please, see Parse::Plain version 3.x.
+1. Allow changing delimiter symbols.
+
 
 All contributions are welcome ;-)

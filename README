@@ -2,9 +2,6 @@ This package contains a simple template parsing engine. It allows to parse
 text files as well as HTML, XML and other markup formats as they are
 text files also.
 
-This version 2.1 includes most of new features introduced in version 3.0 but
-is 100% compatible with 2.0x. This is probably the last 2.x version released.
-
 In order to install and use this package you will need Perl version
 5.005 or better. Please note: the module hasn't been tested under
 Perl 6!
