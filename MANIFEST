@@ -1,6 +1,5 @@
 Changes			What's new
 FAQ			Frequently Asked Questions
-INSTALL			How to install module
 lib/Parse/Plain.pm	Parse::Plain implementation
 MANIFEST		This file
 Makefile.PL		Writes the Makefile
@@ -10,4 +9,7 @@ TODO			ToDo list
 t/plain.t		test case
 t/tmpl/1.tmpl		test template file
 t/tmpl/2.tmpl		test template file
-t/tmpl/result.12	sample parsing result
+t/tmpl/3.tmpl		test template file
+t/tmpl/4.tmpl		test template file
+t/tmpl/result		test results to compare
+
