@@ -1,3 +1,7 @@
+3.01	2004.04.19	Andrew A. Novikov
+	- minor bugs in POD documentation fixed.
+
+
 3.00	2004.04.19	Andrew A. Novikov
 	- global tags introduced;
 	- callbacks introduced;

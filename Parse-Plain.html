@@ -64,7 +64,7 @@
 <P>
 <H1><A NAME="NAME">NAME</A></H1>
 <P>
-<PRE> Parse::Plain - template parsing engine (version 3.00)
+<PRE> Parse::Plain - template parsing engine (version 3.01)
 </PRE>
 <P>
 <HR>
@@ -120,7 +120,7 @@ different tags in the template.
 Block is a construction that begins with line
 
 <P>
-<PRE>  B&lt;{{ blockname&gt;
+<PRE>  {{ blockname
 </PRE>
 <P>
 and ends with symbols <STRONG>}}</STRONG>
@@ -205,8 +205,8 @@ tagname =&gt; value pairs or just pass two scalars (tagname and value).
 Examples:
 
 <P>
-<PRE> B&lt;$t-E&lt;gt&gt;set_tag('mytag', 'value'); # set %%mytag%% to 'value'&gt;
- B&lt;$t-E&lt;gt&gt;set_tag({'mytag' =&gt; 'value', 'othertag' =&gt; 'otherval');&gt;
+<PRE> $t-E&lt;gt&gt;set_tag('mytag', 'value'); # set %%mytag%% to 'value'
+ $t-E&lt;gt&gt;set_tag({'mytag' =&gt; 'value', 'othertag' =&gt; 'otherval');
 </PRE>
 <P>
 Values may be another instances of Parse::Plain. In this case <A HREF="#parse">parse</A>
@@ -451,7 +451,7 @@ ignored. You must also call <A HREF="#parse">parse</A> function for each iterati
 hash of tags used for parsing current block. For example:
 
 <P>
-<PRE>  B&lt;$t-E&lt;gt&gt;parse('blockname', {'tag1' =E&lt;gt&gt; 'val1', 'tag2' =E&lt;gt&gt; 'val2'});&gt;
+<PRE>  $t-E&lt;gt&gt;parse('blockname', {'tag1' =E&lt;gt&gt; 'val1', 'tag2' =E&lt;gt&gt; 'val2'});
 </PRE>
 <P>
 If you don't specify this hash reference hash filled by
@@ -506,12 +506,8 @@ o
 One will be parsed to
 
 <P>
-<STRONG><PRE>      Hello
+<PRE>      Hello
 </PRE>
-</STRONG>
-
-
-
 <P>
 line. However since version 3.00 you could also use such template:
 
