@@ -3,7 +3,7 @@ FAQ			Frequently Asked Questions
 lib/Parse/Plain.pm	Parse::Plain implementation
 MANIFEST		This file
 Makefile.PL		Writes the Makefile
-Parse-Plain.html	HTML documentation for Parse::Plain
+Parse-Plain-3.02.html	HTML documentation for Parse::Plain version 3.02
 README			Please do!
 TODO			ToDo list
 t/plain.t		test case

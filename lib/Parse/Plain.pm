@@ -10,7 +10,7 @@ BEGIN
 	use Carp;
 	use vars  qw( $VERSION $lcnt_max $ssec );
 
-	$VERSION = "3.01";
+	$VERSION = "3.02";
 }
 
 
@@ -1095,7 +1095,7 @@ __END__
 
 =head1 NAME
 
- Parse::Plain - template parsing engine (version 3.01)
+ Parse::Plain - template parsing engine (version 3.02)
 
 
 =head1 SYNOPSIS
@@ -1220,8 +1220,8 @@ of tagname =E<gt> value pairs or just pass two scalars (tagname and value).
 
 Examples:
 
- $t-E<gt>set_tag('mytag', 'value'); # set %%mytag%% to 'value'
- $t-E<gt>set_tag({'mytag' => 'value', 'othertag' => 'otherval');
+ $t->set_tag('mytag', 'value'); # set %%mytag%% to 'value'
+ $t->set_tag({'mytag' => 'value', 'othertag' => 'otherval');
 
 Values may be another instances of Parse::Plain. In this case L</parse>
 method will be called on value object. Returned value is a hash
@@ -1442,7 +1442,7 @@ gtag_name =E<gt> value pairs. Pass undef as value to remove global tag.
 
 Set callbacks. A callback allows you to have special tags in the form:
 
-  %%tagname:I<param>%%
+  %%tagname:param%%
 
 For each such tag specified callback function will be called with
 I<param>. Arguments to this method may be either pair of tagname,
@@ -1466,7 +1466,7 @@ iteration of the block. See L</EXAMPLES> section elsewhere in this document.
 You can also provide a referense to hash of tags used for parsing
 current block. For example:
 
-  $t-E<gt>parse('blockname', {'tag1' =E<gt> 'val1', 'tag2' =E<gt> 'val2'});
+  $t->parse('blockname', {'tag1' => 'val1', 'tag2' => 'val2'});
 
 If you don't specify this hash reference hash filled by
 L</set_tag> functions wiil be used instead. You can also use both

@@ -64,7 +64,7 @@
 <P>
 <H1><A NAME="NAME">NAME</A></H1>
 <P>
-<PRE> Parse::Plain - template parsing engine (version 3.01)
+<PRE> Parse::Plain - template parsing engine (version 3.02)
 </PRE>
 <P>
 <HR>
@@ -205,8 +205,8 @@ tagname =&gt; value pairs or just pass two scalars (tagname and value).
 Examples:
 
 <P>
-<PRE> $t-E&lt;gt&gt;set_tag('mytag', 'value'); # set %%mytag%% to 'value'
- $t-E&lt;gt&gt;set_tag({'mytag' =&gt; 'value', 'othertag' =&gt; 'otherval');
+<PRE> $t-&gt;set_tag('mytag', 'value'); # set %%mytag%% to 'value'
+ $t-&gt;set_tag({'mytag' =&gt; 'value', 'othertag' =&gt; 'otherval');
 </PRE>
 <P>
 Values may be another instances of Parse::Plain. In this case <A HREF="#parse">parse</A>
@@ -426,7 +426,7 @@ containing gtag_name =&gt; value pairs. Pass undef as value to remove global tag
 Set callbacks. A callback allows you to have special tags in the form:
 
 <P>
-<PRE>  %%tagname:I&lt;param&gt;%%
+<PRE>  %%tagname:param%%
 </PRE>
 <P>
 For each such tag specified callback function will be called with
@@ -451,7 +451,7 @@ ignored. You must also call <A HREF="#parse">parse</A> function for each iterati
 hash of tags used for parsing current block. For example:
 
 <P>
-<PRE>  $t-E&lt;gt&gt;parse('blockname', {'tag1' =E&lt;gt&gt; 'val1', 'tag2' =E&lt;gt&gt; 'val2'});
+<PRE>  $t-&gt;parse('blockname', {'tag1' =&gt; 'val1', 'tag2' =&gt; 'val2'});
 </PRE>
 <P>
 If you don't specify this hash reference hash filled by
