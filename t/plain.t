@@ -1,9 +1,10 @@
 package Plain;
 
-use Test::More tests => 25;
+use Test::More tests => 23;
 use lib qw ( ./blib/lib/ );
+use lib qw ( ./lib/ );
 use strict;
-use Parse::Plain 3.0;
+use Parse::Plain 2.1;
 my ($t1, $t2, $t3, $t4);
 
 ok($] >= 5.005, 'Perl version');
@@ -33,37 +34,36 @@ $t2->gtag('globaltag', 'GT');
 $t2->callback('braces', sub {return ('[' . $_[0] . ']');});
 
 is($t2->gtag(['globaltag'])->{'globaltag'}, 'GT', 'gtag(ARRAYREF)');
-is($t1->get_tag('t')->[0], 'RSTUV', 'get_tag(SCALAR)');
-is($t1->get_tag('3')->[0], 'troi', 'get_tag(SCALAR)');
-is(($t1->get_tag('2', '3', '2'))->[1], 'troi', 'get_tag(LIST)');
-is($t1->get_tag(['1', '2', '1'])->[2], '_une', 'get_tag(ARRAYREF)');
+is($t1->get_tag('t'), 'RSTUV', 'get_tag(SCALAR)');
+is($t1->get_tag('3'), 'troi', 'get_tag(SCALAR)');
 
-is($t2->get_tag('DP')->[0], '%%', 'get_tag(\'DP\')');
-is($t2->get_tag('DCL')->[0], '{{', 'get_tag(\'DCL\')');
-is($t2->get_tag('DCR')->[0], '}}', 'get_tag(\'DCR\')');
+is($t2->get_tag('DP'), '%%', 'get_tag(\'DP\')');
+is($t2->get_tag('DCL'), '{{', 'get_tag(\'DCL\')');
+is($t2->get_tag('DCR'), '}}', 'get_tag(\'DCR\')');
 
 # block functions
-is($t2->block('bl8')->{'bl8'}, 'block8', 'block(SOURCE)');
+is($t2->block('bl8'), 'block8', 'block(SOURCE)');
 is($t2->block_src('bl8')->{'bl8'}, 'block8', 'block_src()');
 is($t2->block_res('bl8')->{'bl8'}, undef, 'block_res()');
 
 $t2->parse('bl8');
 is($t2->block_src('bl8')->{'bl8'}, 'block8', 'block_src()');
 is($t2->block_res('bl8')->{'bl8'}, 'block8', 'block_res()');
-is($t2->block('bl8')->{'bl8'}, 'block8', 'block(RESULT)');
+is($t2->block('bl8'), 'block8', 'block(RESULT)');
 
 $t2->parse('bl8');
-is($t2->block('bl8')->{'bl8'}, 'block8block8', 'push_block_res(RESULT)');
+is($t2->block_res('bl8')->{'bl8'}, 'block8block8', 'push_block_res(RESULT)');
 
 $t2->push_block_res({'bl8' => '!'});
 $t2->unshift_block_res({'bl8' => '!'});
-is($t2->block('bl8')->{'bl8'}, '!block8block8!', 'unshift_block_res(RESULT)');
+is($t2->block_res('bl8')->{'bl8'}, '!block8block8!',
+    'unshift_block_res(RESULT)');
 
 $t2->block_src({'bl8' => 'BLOCK8'});
 $t2->push_block_src({'bl8' => '!'});
 $t2->unshift_block_src({'bl8' => '!'});
 $t2->parse('bl8');
-is($t2->block('bl8')->{'bl8'}, '!block8block8!!BLOCK8!',
+is($t2->block_res('bl8')->{'bl8'}, '!block8block8!!BLOCK8!',
     'push/unshift_block_src(RESULT)');
 
 $t2->reset_block_src('bl8');

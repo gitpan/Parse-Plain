@@ -31,7 +31,7 @@ Q4. Can I somehow use it with Perl 4?
 A4. No, because it's object-oriented.
 
 
-Q5. Is Parse::Plain version 3 compatible with version 2.x
+Q5. Is Parse::Plain version 3 compatible with version 2.0x
 A5. Strictly speaking no. However most templates and code
 wouldn't require any changes (or require small). Things
 to check are:
@@ -39,7 +39,9 @@ to check are:
 block, push_block, unshift_block now return references;
  - methods block, push_block, unshift_block now have
 slightly different behavior. In version 2.x it always
-affected block source, now it may also affect block results. 
+affected block source, now it may also affect block results.
+This version 2.1 is 100% compatible with 2.0x but includes
+many of the new features introduces in 3.0.
 
 
 Q6. Do you provide support?

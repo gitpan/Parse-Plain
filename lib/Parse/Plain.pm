@@ -10,7 +10,7 @@ BEGIN
 	use Carp;
 	use vars  qw( $VERSION $lcnt_max $ssec );
 
-	$VERSION = "3.02";
+	$VERSION = "2.1";
 }
 
 
@@ -95,8 +95,8 @@ sub new
 
 
 # set tags in %hparse
-# [I] either ($tag, $val) pair or $hash_ref containing { $tag => $val } pairs
-# [O] hash_ref containing { $tagname => $new_value, ... }
+# [I] ($tag, $val) or hashref containing { $tag => $val, ... }
+# [O] new value of tag (a random tag if hashref passed!)
 sub set_tag
 {
  	my $self = shift;
@@ -105,8 +105,6 @@ sub set_tag
 	unless ($_[0]) {
 		&_my_error('required parameter missed');
 	}
-	
-	$res = {};
 
 	if (ref($_[0]) eq 'HASH') {
 		foreach $tag(keys(%{$_[0]})) {
@@ -117,7 +115,7 @@ sub set_tag
 			} else {
 				$self->{'hparse'}->{$tag} = $val;
 			}
-			$res->{$tag} = $self->{'hparse'}->{$tag};
+			$res = $self->{'hparse'}->{$tag};
 		}
 	} elsif (!ref($_[0])) {
 		($tag, $val) = @_;
@@ -127,7 +125,7 @@ sub set_tag
 		} else {
 			$self->{'hparse'}->{$tag} = $val;
 		}
-		$res->{$tag} = $self->{'hparse'}->{$tag};
+		$res = $self->{'hparse'}->{$tag};
 	} else {
 		&_my_error('unsupported argument type: ' . ref($_[0]));
 	}
@@ -137,40 +135,23 @@ sub set_tag
 
 
 # retrieve tags from %hparse
-# [I] @tags or [$tag1, $tag2, ...]
-# [O] [$val1, $val2, ...]
+# [I] tag
+# [O] value
 sub get_tag
 {
 	my $self = shift;
-	my ($res, $key);
 
 	unless ($_[0]) {
 		&_my_error('required parameter missed');
 	}
 	
-	$res = [];
-	
-	# to avoid mess I support either arrayref or list not both mixed!
-	if (ref($_[0]) eq 'ARRAY') {
-		foreach $key(@{$_[0]}) {
-			push @$res, $self->{'hparse'}->{$key};
-		}
-	} elsif (!ref($_[0])) {
-		while (@_) {
-			$key = shift;
-			push @$res, $self->{'hparse'}->{$key};
-		}
-	} else {
-		&_my_error('unsupported argument type: ' . ref($_[0]));
-	}
-
-	return $res;
+	return $self->{'hparse'}->{$_[0]};
 }
 
 
 # append values to tags
 # [I] either ($tag, $val) pair or $hash_ref containing { $tag => $val } pairs
-# [O] hash_ref with { $tagname => $new_val, ... }
+# [O] new value of tag (a random tag if hashref passed!)
 sub push_tag
 {
 	my $self = shift;
@@ -179,8 +160,6 @@ sub push_tag
 	unless ($_[0]) {
 		&_my_error('required parameter missed');
 	}
-	
-	$res = {};
 
 	if (ref($_[0]) eq 'HASH') {
 		foreach $tag(keys(%{$_[0]})) {
@@ -191,8 +170,7 @@ sub push_tag
 			} else {
 				$self->{'hparse'}->{$tag} .= $val;
 			}
-			
-			$res->{$tag} = $self->{'hparse'}->{$tag};
+			$res = $self->{'hparse'}->{$tag};
 		}
 	} elsif (!ref($_[0])) {
 		($tag, $val) = @_;
@@ -203,7 +181,7 @@ sub push_tag
 			$self->{'hparse'}->{$tag} .= $val;
 		}
 		
-		$res->{$tag} = $self->{'hparse'}->{$tag};
+		$res = $self->{'hparse'}->{$tag};
 	} else {
 		&_my_error('unsupported argument type: ' . ref($_[0]));
 	}
@@ -214,7 +192,7 @@ sub push_tag
 
 # append tags to passed values and store result in tags
 # [I] either ($tag, $val) pair or $hash_ref containing { $tag => $val } pairs
-# [O] hash_ref of new values
+# [O] new value of tag (a random tag if hashref passed!)
 sub unshift_tag
 {
 	my $self = shift;
@@ -224,8 +202,6 @@ sub unshift_tag
 		&_my_error('required parameter missed');
 	}
 
-	$res = {};	
-	
 	if (ref($_[0]) eq 'HASH') {
 		foreach $tag(keys(%{$_[0]})) {
 			$val = $_[0]->{$tag};
@@ -237,8 +213,7 @@ sub unshift_tag
 				$self->{'hparse'}->{$tag} =
 				    $val . $self->{'hparse'}->{$tag};
 			}
-			
-			$res->{$tag} = $self->{'hparse'}->{$tag};
+			$res = $self->{'hparse'}->{$tag};
 		}
 	} elsif (!ref($_[0])) {
 		($tag, $val) = @_;
@@ -251,7 +226,7 @@ sub unshift_tag
 			    $val . $self->{'hparse'}->{$tag};
 		}
 		
-		$res->{$tag} = $self->{'hparse'}->{$tag};
+		$res = $self->{'hparse'}->{$tag};
 	} else {
 		&_my_error('unsupported argument type: ' . ref($_[0]));
 	}
@@ -260,28 +235,20 @@ sub unshift_tag
 }
 
 
-# block src/res accessor, required for backwards compatibility with 2.x
+# block source accessor
 # if block hasn't been parse()'d yet or has been unparse()'d then
 # block_src() used else block_res()
 # [I] scalar blockname to get or list (blockname, val) to set value
-# [O] same as block_src() / block_res()
+# [O] value
 sub block
 {
 	my $self = shift;
-	my ($bl);
 
-	$bl = $_[0];
-	unless ($bl) {
+	unless ($_[0]) {
 		&_my_error('required parameter missed');
 	}
 	
-	if (defined $self->{'hparse'}->{'!' . $bl}) {
-		return $self->block_res(@_);
-	} else {
-		return $self->block_src(@_);
-	}
-	
-	&_my_error('control flow must never reach here');
+	return $self->block_src(@_)->{$_[0]};
 }
 
 
@@ -404,12 +371,9 @@ sub block_res
 }
 
 
-# append values to src / res blocks
-# required for backwards compatibility with 2.x
-# if block hasn't been parse()'d yet or has been unparse()'d then
-# push_block_src() used else push_block_res()
-# [I] list (blockname, val)
-# [O] same as push_block_src() / push_block_res()
+# append values block source
+# [I] (blockname, value)
+# [O] value
 sub push_block
 {
 	my $self = shift;
@@ -420,13 +384,7 @@ sub push_block
 		&_my_error('required parameter missed');
 	}
 	
-	if (defined $self->{'hparse'}->{'!' . $bl}) {
-		return $self->push_block_res(@_);
-	} else {
-		return $self->push_block_src(@_);
-	}
-	
-	&_my_error('control flow must never reach here');
+	return $self->push_block_src(@_)->{$bl};
 }
 
 
@@ -520,12 +478,9 @@ sub push_block_res
 }
 
 
-# push values to src / res blocks
-# required for backwards compatibility with 2.x
-# if block hasn't been parse()'d yet or has been unparse()'d then
-# unshift_block_src() used else unshift_block_res()
-# [I] list (blockname, val)
-# [O] same as unshift_block_src() / unshift_block_res()
+# push values to block source
+# [I] (blockname, value)
+# [O] value
 sub unshift_block
 {
 	my $self = shift;
@@ -536,13 +491,7 @@ sub unshift_block
 		&_my_error('required parameter missed');
 	}
 	
-	if (defined $self->{'hparse'}->{'!' . $bl}) {
-		return $self->unshift_block_res(@_);
-	} else {
-		return $self->unshift_block_src(@_);
-	}
-	
-	&_my_error('control flow must never reach here');
+	return $self->unshift_block_src(@_)->{$bl};
 }
 
 
@@ -1095,7 +1044,7 @@ __END__
 
 =head1 NAME
 
- Parse::Plain - template parsing engine (version 3.02)
+ Parse::Plain - template parsing engine (version 2.1)
 
 
 =head1 SYNOPSIS
@@ -1114,7 +1063,7 @@ __END__
  # set a callback for tags like %%url:http://host.com/doc.html%%
  $t->callback('url', sub { return SomePackage::GetUrl($_[0]); });
  
- $t->push_block_src('myblock', 'some text to append to the block source');
+ $t->push_block('myblock', 'some text to append to the block source');
  $t->unshift_block_res('myblock', 'some text to prepend to the block result');
  
  $t->parse('myblock', {'blocktag' => 'block value'});  # parse block
@@ -1131,6 +1080,10 @@ __END__
 Parse::Plain is a Perl module for parsing text-based templates. It was
 designed to use with HTML, XHTML, XML and other markup languages
 but usually can be used with arbitrary text files as well.
+
+This version (2.1) contains most fuctionality of version 3.0 but
+is 100% compatible with 2.0x. This is probably the last 2.x version
+released.
 
 Basic constructions in the templates are tags and blocks. Both must
 have names. Valid symbols for using in tag and block names are digits,
@@ -1203,7 +1156,7 @@ this document. To illustrate the difference:
 
 =head2 new
 
-The constructor. The first parameter (mandatiry) is a path to template
+The constructor. The first parameter (mandatory) is a path to template
 file. Template file must exist and be readable. If file cannot be read
 several attempts will be made (by default 5 attemts with 1 second interval
 between attemts). You can optionally change these values by passing
@@ -1224,50 +1177,38 @@ Examples:
  $t->set_tag({'mytag' => 'value', 'othertag' => 'otherval');
 
 Values may be another instances of Parse::Plain. In this case L</parse>
-method will be called on value object. Returned value is a hash
-reference containing tag_name =E<gt> new_value pairs.
+method will be called on value object. Returns new value of tag
+(Warning: a random tag is returned if hash reference was passed!)
 
 
 =head2 get_tag
 
-Get current values of tags at. Parameter may be either
-array reference containing tag names or a list with tag names but not
-both intermixed. Returned value is a hash reference containing
-tag_name =E<gt> value pairs. Using array reference as parameter
-is recommended.
+Get current value of tag. Parameter is a tag name. Returns tag value.
 
 
 =head2 push_tag
 
-Append supplied values to current values of tags. There are two
-prototypes for this method. You may either pass a hash reference containing
-any number of tagname =E<gt> value pairs or just pass two scalars (tagname
-and value). Values may be another instances of Parse::Plain. In this case
-L</parse> method will be called on value object. Returned value is a hash
-reference containing tag_name =E<gt> new_value pairs.
+Append supplied value to current value of tag. Requires parameters:
+tag name and value. Value may be an instance of Parse::Plain. In this
+case L</parse> method will be called automatically on value object.
+Returns new value of tag.
 
 
 =head2 unshift_tag
 
-Prepend supplied values to current values of tags. There are two
-prototypes for this method. You may either pass a hash reference containing
-any number of tagname =E<gt> value pairs or just pass two scalars (tagname
-and value). Values may be another instances of Parse::Plain. In this case
-L</parse> method will be called on value object. Returned value is a hash
-reference containing tag_name =E<gt> new_value pairs.
+Prepend supplied value to current value of tag. Requires parameters:
+tag name and value. Value may be an instance of Parse::Plain. In this
+case L</parse> method will be called automatically on value object.
+Returns new value of tag.
 
 
 =head2 block
 
-Block accessor, allows to set or get values of specific blocks.
-This method exists for backwards-compatibility and accepts as
-input parameter only list (blockname, value) to set blockname to value
-or just scalar blockname to get it's value. You should call
-L</block_src> or L</block_res> methods instead. This method acts
-exactly like L</block_src> if the block being accessed hasn't been parsed
-yet (this means that you haven't called yet L</parse> method for this
-block from the object creation moment or after L</unparse> call for
-this block). Elsewise this method acts like L</block_res>.
+Block source accessor, allows to set or get values of specific blocks.
+This method requires a input parameter list (blockname, value) to set
+blockname to value or just scalar blockname to get it's value. You
+should call L</block_src> method instead. This method acts exactly
+like L</block_src> but returns scalar value of block.
 
 
 =head2 block_src
@@ -1298,14 +1239,9 @@ block_name =E<gt> value pairs.
 
 =head2 push_block
 
-Append supplied values to blocks. This method exists for 
-backwards-compatibility and accepts only list with blockname, value
-as input parameter. You should call L</push_block_src> or
-L</push_block_res> methods instead. This method acts exactly
-like L</push_block_src> if the block being accessed isn't parsed yet
-(this means that you haven't called yet L</parse> method for
-this block from the object creation moment or after L</unparse>
-call for this block). Elsewise this method acts like L</push_block_res>.
+Append value to block, requires as input a list (blockname, value)
+You should call L</push_block_src> method instead. This method acts
+exactly like L</push_block_src> but returns scalar value of block.
 
 
 =head2 push_block_src
@@ -1330,14 +1266,10 @@ block_name =E<gt> new_value pairs.
 
 =head2 unshift_block
 
-Prepend supplied values to blocks. TThis method exists for
-backwards-compatibility and accepts only list with blockname, value
-as input parameter. You should call L</unshift_block_src> or
-L</unshift_block_res> methods instead. This method acts exactly
-like L</unshift_block_src> if the block being accessed isn't parsed yet
-(this means that you haven't called yet L</parse> method for 
-this block from the object creation moment or after L</unparse>
-call for this block). Elsewise this method acts like L</unshift_block_res>.
+Prepend value to block, requires as input a list (blockname, value)
+You should call L</unshift_block_src> method instead. This method acts
+exactly like L</unshift_block_src> but returns scalar value of block.
+
 
 
 =head2 unshift_block_src
@@ -1528,9 +1460,9 @@ o
 
 One will be parsed to
 
-      Hello
+       Hello
 
-line. However since version 3.00 you could also use such template:
+line. However you could also use such template:
 
        He
   {{ myblock
@@ -1544,7 +1476,7 @@ You may not use colons in callback tagnames.
 
 =item *
 Obviously, it's not a very good idea to use this module for 
-binary templates. :-)
+binary templates. ;-)
 
 =back
 
